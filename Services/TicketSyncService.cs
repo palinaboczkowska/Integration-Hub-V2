@@ -2,28 +2,27 @@ using System.Net.Http.Json;
 using IntegrationHub.Api.Integrations.Asana;
 using IntegrationHub.Api.Integrations.Freshdesk;
 using IntegrationHub.Api.Models;
+using IntegrationHub.Api.Repositories;
 
 namespace IntegrationHub.Api.Services;
 
 public class TicketSyncService(
     FreshdeskClient freshdeskClient,
     AsanaClient asanaClient,
+    IMappingRepository mappingRepository,
     ILogger<TicketSyncService> logger)
     : ITicketSyncService
 {
     private readonly FreshdeskClient _freshdeskClient = freshdeskClient;
     private readonly AsanaClient _asanaClient = asanaClient;
+    private readonly IMappingRepository _mappingRepository = mappingRepository;
     private readonly ILogger<TicketSyncService> _logger = logger;
 
-    // Simple in-memory mapping store for now. Replace with persistent storage as needed.
-    private readonly Dictionary<long, TicketSyncMapping> _byFreshdeskId = new();
-    private readonly Dictionary<string, TicketSyncMapping> _byAsanaTaskId = new();
-
     public TicketSyncMapping? GetByFreshdeskId(long ticketId) =>
-        _byFreshdeskId.TryGetValue(ticketId, out var mapping) ? mapping : null;
+        _mappingRepository.GetByFreshdeskId(ticketId);
 
     public TicketSyncMapping? GetByAsanaTaskId(string taskId) =>
-        _byAsanaTaskId.TryGetValue(taskId, out var mapping) ? mapping : null;
+        _mappingRepository.GetByAsanaTaskId(taskId);
 
     public async Task<string> SyncFromFreshdeskTicketAsync(FreshdeskTicket ticket, CancellationToken cancellationToken = default)
     {
@@ -65,8 +64,7 @@ public class TicketSyncService(
             SyncedAtUtc = DateTime.UtcNow
         };
 
-        _byFreshdeskId[ticket.Id] = mapping;
-        _byAsanaTaskId[created.Data.Gid] = mapping;
+        await _mappingRepository.SaveAsync(mapping, cancellationToken);
 
         _logger.LogInformation("Synced Freshdesk ticket {TicketId} to Asana task {TaskId}", ticket.Id, created.Data.Gid);
 

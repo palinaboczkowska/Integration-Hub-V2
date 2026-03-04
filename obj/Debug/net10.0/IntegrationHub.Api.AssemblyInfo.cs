@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("integration-hub-v2-secrets")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("IntegrationHub.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1eaf9f0892ae8bf707e5f1a09be3ae13e4323f66")]
 [assembly: System.Reflection.AssemblyProductAttribute("IntegrationHub.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IntegrationHub.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

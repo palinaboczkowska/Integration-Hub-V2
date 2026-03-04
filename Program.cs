@@ -2,6 +2,9 @@ using IntegrationHub.Api.Integrations.Freshdesk;
 using IntegrationHub.Api.Integrations.Asana;
 using IntegrationHub.Api.Models;
 using IntegrationHub.Api.Services;
+using IntegrationHub.Api.Data;
+using IntegrationHub.Api.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +19,13 @@ builder.Services.Configure<IntegrationSettings>(
 // Add services to the container.
 builder.Services.AddControllers();
 
+// EF Core DbContext with SQLite
+builder.Services.AddDbContext<IntegrationHubDbContext>(options =>
+    options.UseSqlite("Data Source=integrationhub.db"));
+
 // Dependency injection for core integration services
 builder.Services.AddScoped<IIntegrationService, IntegrationService>();
+builder.Services.AddScoped<IMappingRepository, EfMappingRepository>();
 builder.Services.AddScoped<ITicketSyncService, TicketSyncService>();
 
 // Typed HTTP client for Freshdesk integration
